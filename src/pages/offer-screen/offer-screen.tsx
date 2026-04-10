@@ -3,16 +3,20 @@ import {useParams} from 'react-router-dom';
 import {Helmet} from 'react-helmet-async';
 import Header from '../../components/header/header.tsx';
 import {OfferDetails, OfferPreview} from '../../types/offer.ts';
+import {Review} from '../../types/review.ts';
 import NotFoundScreen from '../not-found-screen/not-found-screen.tsx';
 import OffersList from '../../components/offers-list/offers-list.tsx';
 import ReviewForm from '../../components/review-form/review-form.tsx';
+import ReviewsList from '../../components/reviews-list/reviews-list.tsx';
+import Map from '../../components/map/map.tsx';
 
 type OfferScreenProps = {
   offers: OfferDetails[];
   previewOffers: OfferPreview[];
+  reviews: Review[];
 }
 
-const OfferScreen = ({offers, previewOffers}: OfferScreenProps): React.ReactElement => {
+const OfferScreen = ({offers, previewOffers, reviews}: OfferScreenProps): React.ReactElement => {
   const {id} = useParams();
   const offer = offers.find((currentOffer) => currentOffer.id === id);
 
@@ -21,6 +25,7 @@ const OfferScreen = ({offers, previewOffers}: OfferScreenProps): React.ReactElem
   }
 
   const nearbyOffers = previewOffers.filter((currentOffer) => currentOffer.id !== offer.id).slice(0, 3);
+  const offerReviews = reviews.filter((review) => review.offerId === offer.id);
   const ratingWidth = `${Math.round(offer.rating) * 20}%`;
 
   return (
@@ -112,36 +117,16 @@ const OfferScreen = ({offers, previewOffers}: OfferScreenProps): React.ReactElem
                 </div>
               </div>
               <section className="offer__reviews reviews">
-                <h2 className="reviews__title">Reviews &middot; <span className="reviews__amount">1</span></h2>
-                <ul className="reviews__list">
-                  <li className="reviews__item">
-                    <div className="reviews__user user">
-                      <div className="reviews__avatar-wrapper user__avatar-wrapper">
-                        <img className="reviews__avatar user__avatar" src="/img/avatar-max.jpg" width="54" height="54" alt="Reviews avatar"/>
-                      </div>
-                      <span className="reviews__user-name">
-                        Max
-                      </span>
-                    </div>
-                    <div className="reviews__info">
-                      <div className="reviews__rating rating">
-                        <div className="reviews__stars rating__stars">
-                          <span style={{width: '80%'}}></span>
-                          <span className="visually-hidden">Rating</span>
-                        </div>
-                      </div>
-                      <p className="reviews__text">
-                        A quiet cozy and picturesque place with a good location and enough space for a comfortable stay.
-                      </p>
-                      <time className="reviews__time" dateTime="2019-04-24">April 2019</time>
-                    </div>
-                  </li>
-                </ul>
+                <ReviewsList reviews={offerReviews} />
                 <ReviewForm />
               </section>
             </div>
           </div>
-          <section className="offer__map map"></section>
+          <Map
+            city={offer.city}
+            offers={nearbyOffers}
+            className="offer__map map"
+          />
         </section>
         <div className="container">
           <section className="near-places places">
