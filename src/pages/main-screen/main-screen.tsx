@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { CITIES } from '../../const';
 import Header from '../../components/header/header.tsx';
 import Footer from '../../components/footer/footer.tsx';
+import Map from '../../components/map/map.tsx';
 import Location from './components/location.tsx';
 import OffersList from '../../components/offers-list/offers-list.tsx';
 import { OfferPreview } from '../../types/offer.ts';
@@ -70,13 +71,10 @@ const MainScreen = ({ offers }: MainScreenProps): React.ReactElement => {
               />
             </section>
             <div className="cities__right-section">
-              <section
-                className="cities__map map"
-                aria-label={
-                  activeOffer
-                    ? `Map for ${activeOffer.title}`
-                    : 'Map with offers'
-                }
+              <Map
+                city={currentCityOffers[0].city}
+                offers={currentCityOffers}
+                selectedOffer={activeOffer}
               />
             </div>
           </div>
