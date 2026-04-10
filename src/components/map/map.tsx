@@ -1,13 +1,13 @@
 import {useEffect, useRef} from 'react';
 import {Icon, layerGroup, Marker} from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import {type City, type OfferPreview} from '../../types/offer.ts';
+import {type City, type Offer} from '../../types/offer.ts';
 import useMap from '../../hooks/use-map.ts';
 
 type MapProps = {
   city: City;
-  offers: OfferPreview[];
-  selectedOffer?: OfferPreview | null;
+  offers: Offer[];
+  selectedOffer?: Offer | null;
   className?: string;
 };
 

@@ -1,8 +1,8 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {useParams} from 'react-router-dom';
 import {Helmet} from 'react-helmet-async';
 import Header from '../../components/header/header.tsx';
-import {OfferDetails, OfferPreview} from '../../types/offer.ts';
+import {Offer, OfferDetails, OfferPreview} from '../../types/offer.ts';
 import {Review} from '../../types/review.ts';
 import NotFoundScreen from '../not-found-screen/not-found-screen.tsx';
 import OffersList from '../../components/offers-list/offers-list.tsx';
@@ -19,12 +19,18 @@ type OfferScreenProps = {
 const OfferScreen = ({offers, previewOffers, reviews}: OfferScreenProps): React.ReactElement => {
   const {id} = useParams();
   const offer = offers.find((currentOffer) => currentOffer.id === id);
+  const [activeOffer, setActiveOffer] = useState<Offer | null>(offer ?? null);
+
+  useEffect(() => {
+    setActiveOffer(offer ?? null);
+  }, [offer]);
 
   if (!offer) {
     return <NotFoundScreen />;
   }
 
   const nearbyOffers = previewOffers.filter((currentOffer) => currentOffer.id !== offer.id).slice(0, 3);
+  const mapOffers: Offer[] = [offer, ...nearbyOffers];
   const offerReviews = reviews.filter((review) => review.offerId === offer.id);
   const ratingWidth = `${Math.round(offer.rating) * 20}%`;
 
@@ -124,7 +130,8 @@ const OfferScreen = ({offers, previewOffers, reviews}: OfferScreenProps): React.
           </div>
           <Map
             city={offer.city}
-            offers={nearbyOffers}
+            offers={mapOffers}
+            selectedOffer={activeOffer ?? offer}
             className="offer__map map"
           />
         </section>
@@ -136,6 +143,7 @@ const OfferScreen = ({offers, previewOffers, reviews}: OfferScreenProps): React.
               listClassName="near-places__list places__list"
               cardClassName="near-places__card place-card"
               imageWrapperClassName="near-places__image-wrapper place-card__image-wrapper"
+              onActiveOfferChange={(currentOffer) => setActiveOffer(currentOffer ?? offer)}
             />
           </section>
         </div>
