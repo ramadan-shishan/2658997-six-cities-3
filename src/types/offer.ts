@@ -15,7 +15,7 @@ export type Host = {
   isPro: boolean;
 };
 
-type BaseOffer = {
+export type Offer = {
   id: string;
   title: string;
   type: string;
@@ -27,11 +27,11 @@ type BaseOffer = {
   rating: number;
 };
 
-export type OfferPreview = BaseOffer & {
+export type OfferPreview = Offer & {
   previewImage: string;
 };
 
-export type OfferDetails = BaseOffer & {
+export type OfferDetails = Offer & {
   description: string;
   bedrooms: number;
   goods: string[];
