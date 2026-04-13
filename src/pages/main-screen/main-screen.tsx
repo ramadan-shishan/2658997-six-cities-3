@@ -1,22 +1,38 @@
-import React, { useState } from 'react';
-import { CITIES } from '../../const';
+import React, { useState, useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState, AppDispatch } from '../../store/index.ts';
+import { changeCity } from '../../store/action.ts';
+import { fetchOffers } from '../../store/api-actions.ts';
 import Header from '../../components/header/header.tsx';
 import Footer from '../../components/footer/footer.tsx';
 import Map from '../../components/map/map.tsx';
-import Location from './components/location.tsx';
+import LocationsList from '../../components/locations-list/locations-list.tsx';
 import OffersList from '../../components/offers-list/offers-list.tsx';
 import { OfferPreview } from '../../types/offer.ts';
 
-type MainScreenProps = {
-  offers: OfferPreview[];
-};
-
-const MainScreen = ({ offers }: MainScreenProps): React.ReactElement => {
+const MainScreen = (): React.ReactElement => {
+  const dispatch = useDispatch<AppDispatch>();
+  const { city, offers, loading } = useSelector(
+    (state: RootState) => state.offers,
+  );
   const [activeOffer, setActiveOffer] = useState<OfferPreview | null>(null);
+
+  useEffect(() => {
+    dispatch(fetchOffers());
+  }, [dispatch]);
+
   const currentCityOffers = offers.filter(
-    ({ city }) => city.name === 'Amsterdam',
+    ({ city: offerCity }) => offerCity.name === city,
   );
   const currentCity = currentCityOffers[0]?.city;
+
+  const handleCityChange = (newCity: string) => {
+    dispatch(changeCity(newCity));
+  };
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
@@ -25,11 +41,7 @@ const MainScreen = ({ offers }: MainScreenProps): React.ReactElement => {
         <h1 className="visually-hidden">Cities</h1>
         <div className="tabs">
           <section className="locations container">
-            <ul className="locations__list tabs__list">
-              {CITIES.map((cityItem) => (
-                <Location key={cityItem} city={cityItem} />
-              ))}
-            </ul>
+            <LocationsList currentCity={city} onCityChange={handleCityChange} />
           </section>
         </div>
         <div className="cities">
@@ -37,7 +49,7 @@ const MainScreen = ({ offers }: MainScreenProps): React.ReactElement => {
             <section className="cities__places places">
               <h2 className="visually-hidden">Places</h2>
               <b className="places__found">
-                {currentCityOffers.length} places to stay in Amsterdam
+                {currentCityOffers.length} places to stay in {city}
               </b>
               <form className="places__sorting" action="#" method="get">
                 <span className="places__sorting-caption">Sort by</span>

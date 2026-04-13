@@ -1,19 +1,18 @@
 import React from 'react';
-import {Link} from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import Header from '../../components/header/header.tsx';
 import Footer from '../../components/footer/footer.tsx';
-import {Helmet} from 'react-helmet-async';
+import { Helmet } from 'react-helmet-async';
 import OffersList from '../../components/offers-list/offers-list.tsx';
-import {OfferPreview} from '../../types/offer.ts';
-import {AppRoute} from '../../const.ts';
+import { OfferPreview } from '../../types/offer.ts';
+import { AppRoute } from '../../const.ts';
 
-type FavoritesScreenProps = {
-  offers: OfferPreview[];
-}
-
-const FavoritesScreen = ({offers}: FavoritesScreenProps): React.ReactElement => {
-  const favoriteOffers = offers.filter(({isFavorite}) => isFavorite);
-  const favoriteOffersByCity = favoriteOffers.reduce<Record<string, OfferPreview[]>>((acc, offer) => {
+const FavoritesScreen = (): React.ReactElement => {
+  const offers: OfferPreview[] = [];
+  const favoriteOffers = offers.filter(({ isFavorite }) => isFavorite);
+  const favoriteOffersByCity = favoriteOffers.reduce<
+    Record<string, OfferPreview[]>
+  >((acc, offer) => {
     const cityName = offer.city.name;
 
     if (!acc[cityName]) {
@@ -35,26 +34,31 @@ const FavoritesScreen = ({offers}: FavoritesScreenProps): React.ReactElement => 
           <section className="favorites">
             <h1 className="favorites__title">Saved listing</h1>
             <ul className="favorites__list">
-              {Object.entries(favoriteOffersByCity).map(([city, cityOffers]) => (
-                <li className="favorites__locations-items" key={city}>
-                  <div className="favorites__locations locations locations--current">
-                    <div className="locations__item">
-                      <Link className="locations__item-link" to={AppRoute.Main}>
-                        <span>{city}</span>
-                      </Link>
+              {Object.entries(favoriteOffersByCity).map(
+                ([city, cityOffers]) => (
+                  <li className="favorites__locations-items" key={city}>
+                    <div className="favorites__locations locations locations--current">
+                      <div className="locations__item">
+                        <Link
+                          className="locations__item-link"
+                          to={AppRoute.Main}
+                        >
+                          <span>{city}</span>
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                  <OffersList
-                    offers={cityOffers}
-                    listClassName="favorites__places"
-                    cardClassName="favorites__card place-card"
-                    imageWrapperClassName="favorites__image-wrapper place-card__image-wrapper"
-                    infoClassName="favorites__card-info place-card__info"
-                    imageWidth={150}
-                    imageHeight={110}
-                  />
-                </li>
-              ))}
+                    <OffersList
+                      offers={cityOffers}
+                      listClassName="favorites__places"
+                      cardClassName="favorites__card place-card"
+                      imageWrapperClassName="favorites__image-wrapper place-card__image-wrapper"
+                      infoClassName="favorites__card-info place-card__info"
+                      imageWidth={150}
+                      imageHeight={110}
+                    />
+                  </li>
+                ),
+              )}
             </ul>
           </section>
         </div>
