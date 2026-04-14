@@ -1,4 +1,4 @@
-import {City} from './reducer.ts';
+import {City, SortType} from './reducer.ts';
 import {OfferPreview} from '../types/offer.ts';
 
 export const changeCity = (city: City) => ({
@@ -9,4 +9,9 @@ export const changeCity = (city: City) => ({
 export const setOffers = (offers: OfferPreview[]) => ({
   type: 'SET_OFFERS' as const,
   payload: offers,
+});
+
+export const setSortType = (sortType: SortType) => ({
+  type: 'SET_SORT_TYPE' as const,
+  payload: sortType,
 });

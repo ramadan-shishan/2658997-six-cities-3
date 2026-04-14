@@ -1,18 +1,20 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '../../store/index.ts';
-import { changeCity } from '../../store/action.ts';
+import { changeCity, setSortType } from '../../store/action.ts';
 import { fetchOffers } from '../../store/api-actions.ts';
+import type { SortType } from '../../store/reducer.ts';
 import Header from '../../components/header/header.tsx';
 import Footer from '../../components/footer/footer.tsx';
 import Map from '../../components/map/map.tsx';
 import LocationsList from '../../components/locations-list/locations-list.tsx';
+import SortingList from '../../components/sorting-list/sorting-list.tsx';
 import OffersList from '../../components/offers-list/offers-list.tsx';
 import { OfferPreview } from '../../types/offer.ts';
 
 const MainScreen = (): React.ReactElement => {
   const dispatch = useDispatch<AppDispatch>();
-  const { city, offers, loading } = useSelector(
+  const { city, offers, loading, sortType } = useSelector(
     (state: RootState) => state.offers,
   );
   const [activeOffer, setActiveOffer] = useState<OfferPreview | null>(null);
@@ -26,8 +28,26 @@ const MainScreen = (): React.ReactElement => {
   );
   const currentCity = currentCityOffers[0]?.city;
 
+  const sortedOffers = useMemo(() => {
+    const sorted = [...currentCityOffers];
+    switch (sortType) {
+      case 'PriceLowToHigh':
+        return sorted.sort((a, b) => a.price - b.price);
+      case 'PriceHighToLow':
+        return sorted.sort((a, b) => b.price - a.price);
+      case 'TopRated':
+        return sorted.sort((a, b) => b.rating - a.rating);
+      default:
+        return sorted;
+    }
+  }, [currentCityOffers, sortType]);
+
   const handleCityChange = (newCity: string) => {
     dispatch(changeCity(newCity));
+  };
+
+  const handleSortChange = (newSortType: SortType) => {
+    dispatch(setSortType(newSortType));
   };
 
   if (loading) {
@@ -51,34 +71,12 @@ const MainScreen = (): React.ReactElement => {
               <b className="places__found">
                 {currentCityOffers.length} places to stay in {city}
               </b>
-              <form className="places__sorting" action="#" method="get">
-                <span className="places__sorting-caption">Sort by</span>
-                <span className="places__sorting-type" tabIndex={0}>
-                  Popular
-                  <svg className="places__sorting-arrow" width="7" height="4">
-                    <use xlinkHref="#icon-arrow-select"></use>
-                  </svg>
-                </span>
-                <ul className="places__options places__options--custom places__options--opened">
-                  <li
-                    className="places__option places__option--active"
-                    tabIndex={0}
-                  >
-                    Popular
-                  </li>
-                  <li className="places__option" tabIndex={0}>
-                    Price: low to high
-                  </li>
-                  <li className="places__option" tabIndex={0}>
-                    Price: high to low
-                  </li>
-                  <li className="places__option" tabIndex={0}>
-                    Top rated first
-                  </li>
-                </ul>
-              </form>
+              <SortingList
+                currentSort={sortType}
+                onSortChange={handleSortChange}
+              />
               <OffersList
-                offers={currentCityOffers}
+                offers={sortedOffers}
                 listClassName="cities__places-list places__list tabs__content"
                 onActiveOfferChange={setActiveOffer}
               />
