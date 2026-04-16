@@ -151,8 +151,7 @@ const OfferScreen = (): React.ReactElement => {
               cardClassName="near-places__card place-card"
               imageWrapperClassName="near-places__image-wrapper place-card__image-wrapper"
               onActiveOfferChange={(currentOffer) =>
-                setActiveOffer(currentOffer ?? offer)
-              }
+                setActiveOffer(currentOffer ?? offer)}
             />
           </section>
         </div>

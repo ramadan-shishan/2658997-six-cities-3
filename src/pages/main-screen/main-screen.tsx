@@ -10,6 +10,8 @@ import Map from '../../components/map/map.tsx';
 import LocationsList from '../../components/locations-list/locations-list.tsx';
 import SortingList from '../../components/sorting-list/sorting-list.tsx';
 import OffersList from '../../components/offers-list/offers-list.tsx';
+import Spinner from '../../components/spinner/spinner.tsx';
+import './main-screen.css';
 import { OfferPreview } from '../../types/offer.ts';
 
 const MainScreen = (): React.ReactElement => {
@@ -23,9 +25,7 @@ const MainScreen = (): React.ReactElement => {
     dispatch(fetchOffers());
   }, [dispatch]);
 
-  const currentCityOffers = offers.filter(
-    ({ city: offerCity }) => offerCity.name === city,
-  );
+  const currentCityOffers = offers.filter((offer) => offer.city.name === city);
   const currentCity = currentCityOffers[0]?.city;
 
   const sortedOffers = useMemo(() => {
@@ -51,7 +51,7 @@ const MainScreen = (): React.ReactElement => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Spinner />;
   }
 
   return (
