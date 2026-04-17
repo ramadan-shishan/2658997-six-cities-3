@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '../../store/index.ts';
 import { changeCity, setSortType } from '../../store/action.ts';
-import { fetchOffers } from '../../store/api-actions.ts';
+import { fetchOffers, checkAuth } from '../../store/api-actions.ts';
 import type { SortType } from '../../store/reducer.ts';
 import Header from '../../components/header/header.tsx';
 import Footer from '../../components/footer/footer.tsx';
@@ -10,6 +10,8 @@ import Map from '../../components/map/map.tsx';
 import LocationsList from '../../components/locations-list/locations-list.tsx';
 import SortingList from '../../components/sorting-list/sorting-list.tsx';
 import OffersList from '../../components/offers-list/offers-list.tsx';
+import Spinner from '../../components/spinner/spinner.tsx';
+import './main-screen.css';
 import { OfferPreview } from '../../types/offer.ts';
 
 const MainScreen = (): React.ReactElement => {
@@ -20,12 +22,11 @@ const MainScreen = (): React.ReactElement => {
   const [activeOffer, setActiveOffer] = useState<OfferPreview | null>(null);
 
   useEffect(() => {
+    dispatch(checkAuth());
     dispatch(fetchOffers());
   }, [dispatch]);
 
-  const currentCityOffers = offers.filter(
-    ({ city: offerCity }) => offerCity.name === city,
-  );
+  const currentCityOffers = offers.filter((offer) => offer.city.name === city);
   const currentCity = currentCityOffers[0]?.city;
 
   const sortedOffers = useMemo(() => {
@@ -51,7 +52,7 @@ const MainScreen = (): React.ReactElement => {
   };
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Spinner />;
   }
 
   return (

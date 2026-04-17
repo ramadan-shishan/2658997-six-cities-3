@@ -1,8 +1,14 @@
+import axios, {AxiosInstance, AxiosError} from 'axios';
 import {OfferPreview, OfferDetails} from '../types/offer.ts';
 import {Review} from '../types/review.ts';
 
 const BASE_URL = 'https://15.design.htmlacademy.pro/six-cities';
 const TIMEOUT = 5000;
+
+export const api: AxiosInstance = axios.create({
+  baseURL: BASE_URL,
+  timeout: TIMEOUT,
+});
 
 export enum APIRoute {
   Offers = '/offers',
@@ -12,92 +18,50 @@ export enum APIRoute {
   Logout = '/logout',
 }
 
-function parseJSON(response: Response): Promise<unknown> {
-  return response.json();
-}
-
-function checkStatus(response: Response): Response {
-  if (response.ok) {
-    return response;
-  }
-  throw new Error(response.statusText);
-}
-
-export class HttpError extends Error {
-  constructor(public statusCode: number, message: string) {
-    super(message);
-    this.name = 'HttpError';
-  }
-}
-
-function handleError(error: unknown): never {
-  if (error instanceof HttpError) {
-    throw error;
-  }
-  throw new Error('Network error');
-}
+const TOKEN_KEY = 'six-cities-token';
 
 export function getToken(): string {
-  const token = localStorage.getItem('six-cities-token');
+  const token = localStorage.getItem(TOKEN_KEY);
   return token ?? '';
 }
 
-type Method = 'GET' | 'POST' | 'PUT' | 'DELETE';
-
-type RequestConfig = {
-  method: Method;
-  endpoint: string;
-  body?: unknown;
-  requiresAuth?: boolean;
-};
-
-async function request<T>({method, endpoint, body, requiresAuth = false}: RequestConfig): Promise<T> {
-  const headers: HeadersInit = {
-    'Content-Type': 'application/json',
-  };
-
-  if (requiresAuth) {
-    const token = getToken();
-    if (token) {
-      headers['X-Token'] = token;
-    }
-  }
-
-  const config: RequestInit = {
-    method,
-    headers,
-  };
-
-  if (body) {
-    config.body = JSON.stringify(body);
-  }
-
-  try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
-      ...config,
-      signal: AbortSignal.timeout(TIMEOUT),
-    });
-
-    const result = await parseJSON(response);
-    const checkedResponse = checkStatus(response);
-
-    if (!checkedResponse.ok) {
-      throw new HttpError(response.status, response.statusText);
-    }
-
-    return result as T;
-  } catch (error) {
-    return handleError(error);
-  }
+export function saveToken(token: string): void {
+  localStorage.setItem(TOKEN_KEY, token);
 }
 
-export const api = {
-  getOffers: () => request<OfferPreview[]>({method: 'GET', endpoint: APIRoute.Offers}),
-  getOfferDetails: (id: string) => request<OfferDetails>({method: 'GET', endpoint: `${APIRoute.Offers}/${id}`}),
-  getComments: (offerId: string) => request<Review[]>({method: 'GET', endpoint: `${APIRoute.Comments}/${offerId}`}),
-  getFavorites: () => request<OfferPreview[]>({method: 'GET', endpoint: APIRoute.Favorites, requiresAuth: true}),
-  login: (email: string, password: string) => request<{token: string}>({method: 'POST', endpoint: APIRoute.Login, body: {email, password}}),
-  logout: () => request<void>({method: 'POST', endpoint: APIRoute.Logout, requiresAuth: true}),
-  addComment: (offerId: string, comment: {comment: string; rating: number}) => request<Review>({method: 'POST', endpoint: `${APIRoute.Comments}/${offerId}`, body: comment, requiresAuth: true}),
-  toggleFavorite: (offerId: string, status: 0 | 1) => request<OfferDetails>({method: 'POST', endpoint: `${APIRoute.Favorites}/${offerId}/${status}`, requiresAuth: true}),
+export function dropToken(): void {
+  localStorage.removeItem(TOKEN_KEY);
+}
+
+api.interceptors.request.use((config) => {
+  const token = getToken();
+  if (token) {
+    config.headers['X-Token'] = token;
+  }
+  return config;
+});
+
+api.interceptors.response.use(
+  (response) => response,
+  (error: AxiosError) => {
+    if (error.response?.status === 401) {
+      dropToken();
+    }
+    throw error;
+  }
+);
+
+export const apiActions = {
+  getOffers: () => api.get<OfferPreview[]>(APIRoute.Offers),
+  getOfferDetails: (id: string) => api.get<OfferDetails>(`${APIRoute.Offers}/${id}`),
+  getComments: (offerId: string) => api.get<Review[]>(`${APIRoute.Comments}/${offerId}`),
+  getFavorites: () => api.get<OfferPreview[]>(APIRoute.Favorites),
+  checkAuth: () => api.get<{token: string; email: string}>(APIRoute.Login),
+  login: (email: string, password: string) => api.post<{token: string; email: string}>(APIRoute.Login, {email, password}),
+  logout: () => api.post(APIRoute.Logout),
+  addComment: (offerId: string, comment: {comment: string; rating: number}) =>
+    api.post<Review>(`${APIRoute.Comments}/${offerId}`, comment),
+  toggleFavorite: (offerId: string, status: 0 | 1) =>
+    api.post<OfferDetails>(`${APIRoute.Favorites}/${offerId}/${status}`),
 };
+

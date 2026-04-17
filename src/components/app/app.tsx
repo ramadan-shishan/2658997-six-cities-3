@@ -1,6 +1,6 @@
 import React from 'react';
 import { HelmetProvider } from 'react-helmet-async';
-import { AppRoute, AuthorizationStatus } from '../../const.ts';
+import { AppRoute } from '../../const.ts';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import MainScreen from '../../pages/main-screen/main-screen.tsx';
 import FavoritesScreen from '../../pages/favorites-screen/favorites-screen.tsx';
@@ -18,7 +18,7 @@ const App = (): React.ReactElement => (
         <Route
           path={AppRoute.Favorites}
           element={
-            <PrivateRoute authorizationStatus={AuthorizationStatus.Auth}>
+            <PrivateRoute>
               <FavoritesScreen />
             </PrivateRoute>
           }
