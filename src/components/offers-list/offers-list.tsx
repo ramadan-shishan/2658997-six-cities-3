@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { memo } from 'react';
 import CityCard from '../city-card/city-card.tsx';
-import {OfferPreview} from '../../types/offer.ts';
+import { OfferPreview } from '../../types/offer.ts';
 
 type OffersListProps = {
   offers: OfferPreview[];
@@ -21,7 +21,7 @@ const OffersList = ({
   infoClassName,
   imageWidth,
   imageHeight,
-  onActiveOfferChange
+  onActiveOfferChange,
 }: OffersListProps): React.ReactElement => (
   <div className={listClassName}>
     {offers.map((offer) => (
@@ -39,4 +39,6 @@ const OffersList = ({
   </div>
 );
 
-export default OffersList;
+const MemoizedOffersList = memo(OffersList);
+
+export default MemoizedOffersList;

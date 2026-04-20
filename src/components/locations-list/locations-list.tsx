@@ -1,13 +1,17 @@
-import React from 'react';
+import React, { memo } from 'react';
 import {CITIES} from '../../const.ts';
 import Location from '../../pages/main-screen/components/location.tsx';
+import type { City } from '../../store/offers-slice.ts';
 
 type LocationsListProps = {
-  currentCity: string;
-  onCityChange: (city: string) => void;
+  currentCity: City;
+  onCityChange: (city: City) => void;
 };
 
-const LocationsList = ({currentCity, onCityChange}: LocationsListProps): React.ReactElement => (
+const LocationsList = ({
+  currentCity,
+  onCityChange,
+}: LocationsListProps): React.ReactElement => (
   <ul className="locations__list tabs__list">
     {CITIES.map((city) => (
       <Location
@@ -20,4 +24,6 @@ const LocationsList = ({currentCity, onCityChange}: LocationsListProps): React.R
   </ul>
 );
 
-export default LocationsList;
+const MemoizedLocationsList = memo(LocationsList);
+
+export default MemoizedLocationsList;

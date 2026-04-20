@@ -1,16 +1,16 @@
+import { memo } from 'react';
 import {type Review as ReviewType} from '../../types/review.ts';
 
 type ReviewProps = {
   review: ReviewType;
 };
 
-const formatReviewDate = (date: string) => new Intl.DateTimeFormat(
-  'en-US',
-  {
-    month: 'long',
-    year: 'numeric'
-  }
-).format(new Date(date));
+const reviewDateFormatter = new Intl.DateTimeFormat('en-US', {
+  month: 'long',
+  year: 'numeric'
+});
+
+const formatReviewDate = (date: string) => reviewDateFormatter.format(new Date(date));
 
 const Review = ({review}: ReviewProps): JSX.Element => {
   const ratingWidth = `${Math.round(review.rating) * 20}%`;
@@ -49,4 +49,6 @@ const Review = ({review}: ReviewProps): JSX.Element => {
   );
 };
 
-export default Review;
+const MemoizedReview = memo(Review);
+
+export default MemoizedReview;

@@ -1,23 +1,25 @@
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Link, useLocation } from 'react-router-dom';
-import { AppRoute, AuthorizationStatus } from '../../const.ts';
 import type { RootState, AppDispatch } from '../../store/index.ts';
 import { logout } from '../../store/api-actions.ts';
+import { AppRoute } from '../../const.ts';
+import {
+  selectIsAuthorized,
+  selectUserEmail,
+} from '../../store/selectors.ts';
 
 const Header = (): React.ReactElement => {
   const dispatch = useDispatch<AppDispatch>();
   const location = useLocation();
-  const { authorizationStatus, email } = useSelector(
-    (state: RootState) => state.user,
-  );
-  const isAuth = authorizationStatus === AuthorizationStatus.Auth;
+  const isAuth = useSelector((state: RootState) => selectIsAuthorized(state));
+  const email = useSelector((state: RootState) => selectUserEmail(state));
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     if (isAuth) {
       dispatch(logout());
     }
-  };
+  }, [dispatch, isAuth]);
 
   const isLoginPage = location.pathname === String(AppRoute.Login);
   const showNav = !isLoginPage;
@@ -86,4 +88,6 @@ const Header = (): React.ReactElement => {
   );
 };
 
-export default Header;
+const MemoizedHeader = memo(Header);
+
+export default MemoizedHeader;

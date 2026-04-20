@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import type { RootState, AppDispatch } from '../../store/index.ts';
 import { changeCity, setSortType } from '../../store/action.ts';
 import { fetchOffers, checkAuth } from '../../store/api-actions.ts';
-import type { SortType } from '../../store/reducer.ts';
+import type { City, SortType } from '../../store/offers-slice.ts';
 import Header from '../../components/header/header.tsx';
 import Footer from '../../components/footer/footer.tsx';
 import Map from '../../components/map/map.tsx';
@@ -13,11 +13,28 @@ import OffersList from '../../components/offers-list/offers-list.tsx';
 import Spinner from '../../components/spinner/spinner.tsx';
 import './main-screen.css';
 import { OfferPreview } from '../../types/offer.ts';
+import {
+  selectCity,
+  selectCurrentCityData,
+  selectCurrentCityOffers,
+  selectOffersLoading,
+  selectSortedCurrentCityOffers,
+  selectSortType,
+} from '../../store/selectors.ts';
 
 const MainScreen = (): React.ReactElement => {
   const dispatch = useDispatch<AppDispatch>();
-  const { city, offers, loading, sortType } = useSelector(
-    (state: RootState) => state.offers,
+  const city = useSelector((state: RootState) => selectCity(state));
+  const loading = useSelector((state: RootState) => selectOffersLoading(state));
+  const sortType = useSelector((state: RootState) => selectSortType(state));
+  const currentCityOffers = useSelector((state: RootState) =>
+    selectCurrentCityOffers(state),
+  );
+  const sortedOffers = useSelector((state: RootState) =>
+    selectSortedCurrentCityOffers(state),
+  );
+  const currentCity = useSelector((state: RootState) =>
+    selectCurrentCityData(state),
   );
   const [activeOffer, setActiveOffer] = useState<OfferPreview | null>(null);
 
@@ -26,30 +43,18 @@ const MainScreen = (): React.ReactElement => {
     dispatch(fetchOffers());
   }, [dispatch]);
 
-  const currentCityOffers = offers.filter((offer) => offer.city.name === city);
-  const currentCity = currentCityOffers[0]?.city;
-
-  const sortedOffers = useMemo(() => {
-    const sorted = [...currentCityOffers];
-    switch (sortType) {
-      case 'PriceLowToHigh':
-        return sorted.sort((a, b) => a.price - b.price);
-      case 'PriceHighToLow':
-        return sorted.sort((a, b) => b.price - a.price);
-      case 'TopRated':
-        return sorted.sort((a, b) => b.rating - a.rating);
-      default:
-        return sorted;
-    }
-  }, [currentCityOffers, sortType]);
-
-  const handleCityChange = (newCity: string) => {
+  const handleCityChange = useCallback((newCity: City) => {
+    setActiveOffer(null);
     dispatch(changeCity(newCity));
-  };
+  }, [dispatch]);
 
-  const handleSortChange = (newSortType: SortType) => {
+  const handleSortChange = useCallback((newSortType: SortType) => {
     dispatch(setSortType(newSortType));
-  };
+  }, [dispatch]);
+
+  const handleActiveOfferChange = useCallback((offer: OfferPreview | null) => {
+    setActiveOffer(offer);
+  }, []);
 
   if (loading) {
     return <Spinner />;
@@ -97,7 +102,7 @@ const MainScreen = (): React.ReactElement => {
                   <OffersList
                     offers={sortedOffers}
                     listClassName="cities__places-list places__list tabs__content"
-                    onActiveOfferChange={setActiveOffer}
+                    onActiveOfferChange={handleActiveOfferChange}
                   />
                 </section>
                 <div className="cities__right-section">

@@ -1,6 +1,5 @@
-import React, {useState} from 'react';
-
-type SortType = 'Popular' | 'PriceLowToHigh' | 'PriceHighToLow' | 'TopRated';
+import React, { memo, useCallback, useState } from 'react';
+import type { SortType } from '../../store/offers-slice.ts';
 
 type SortingListProps = {
   currentSort: SortType;
@@ -14,13 +13,20 @@ const SORT_OPTIONS: {label: string; value: SortType}[] = [
   {label: 'Top rated first', value: 'TopRated'},
 ];
 
-const SortingList = ({currentSort, onSortChange}: SortingListProps): React.ReactElement => {
+const SortingList = ({
+  currentSort,
+  onSortChange,
+}: SortingListProps): React.ReactElement => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleOptionClick = (sortType: SortType) => {
+  const handleToggle = useCallback(() => {
+    setIsOpen((prevIsOpen) => !prevIsOpen);
+  }, []);
+
+  const handleOptionClick = useCallback((sortType: SortType) => {
     onSortChange(sortType);
     setIsOpen(false);
-  };
+  }, [onSortChange]);
 
   const currentLabel = SORT_OPTIONS.find((opt) => opt.value === currentSort)?.label ?? 'Popular';
 
@@ -30,7 +36,7 @@ const SortingList = ({currentSort, onSortChange}: SortingListProps): React.React
       <span
         className="places__sorting-type"
         tabIndex={0}
-        onClick={() => setIsOpen(!isOpen)}
+        onClick={handleToggle}
       >
         {currentLabel}
         <svg className="places__sorting-arrow" width="7" height="4">
@@ -53,5 +59,6 @@ const SortingList = ({currentSort, onSortChange}: SortingListProps): React.React
   );
 };
 
-export default SortingList;
-export type {SortType};
+const MemoizedSortingList = memo(SortingList);
+
+export default MemoizedSortingList;

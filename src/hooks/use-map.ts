@@ -5,6 +5,7 @@ import {type City} from '../types/offer.ts';
 const useMap = (mapRef: RefObject<HTMLElement>, city: City): LeafletMap | null => {
   const [map, setMap] = useState<LeafletMap | null>(null);
   const mapInstanceRef = useRef<LeafletMap | null>(null);
+  const initialCityRef = useRef(city);
 
   useEffect(() => {
     if (mapRef.current === null || mapInstanceRef.current !== null) {
@@ -12,8 +13,11 @@ const useMap = (mapRef: RefObject<HTMLElement>, city: City): LeafletMap | null =
     }
 
     const instance = new LeafletMap(mapRef.current, {
-      center: [city.location.latitude, city.location.longitude],
-      zoom: city.location.zoom
+      center: [
+        initialCityRef.current.location.latitude,
+        initialCityRef.current.location.longitude
+      ],
+      zoom: initialCityRef.current.location.zoom
     });
 
     tileLayer(
@@ -31,7 +35,7 @@ const useMap = (mapRef: RefObject<HTMLElement>, city: City): LeafletMap | null =
       mapInstanceRef.current = null;
       setMap(null);
     };
-  }, [city.location.latitude, city.location.longitude, city.location.zoom, mapRef]);
+  }, [mapRef]);
 
   useEffect(() => {
     if (map === null) {

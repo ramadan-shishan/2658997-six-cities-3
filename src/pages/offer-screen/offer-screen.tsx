@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
@@ -12,14 +12,22 @@ import ReviewForm from '../../components/review-form/review-form.tsx';
 import ReviewsList from '../../components/reviews-list/reviews-list.tsx';
 import Map from '../../components/map/map.tsx';
 import Spinner from '../../components/spinner/spinner.tsx';
+import {
+  selectCommentsCount,
+  selectCurrentOfferDetails,
+  selectOffers,
+  selectSortedComments,
+} from '../../store/selectors.ts';
 
 const OfferScreen = (): React.ReactElement => {
   const { id } = useParams();
   const dispatch = useDispatch<AppDispatch>();
-  const { offers, currentOfferDetails } = useSelector(
-    (state: RootState) => state.offers,
+  const offers = useSelector((state: RootState) => selectOffers(state));
+  const currentOfferDetails = useSelector((state: RootState) =>
+    selectCurrentOfferDetails(state),
   );
-  const { comments } = useSelector((state: RootState) => state.comments);
+  const comments = useSelector((state: RootState) => selectSortedComments(state));
+  const commentsCount = useSelector((state: RootState) => selectCommentsCount(state));
   const [activeOffer, setActiveOffer] = useState<Offer | null>(null);
 
   useEffect(() => {
@@ -31,14 +39,27 @@ const OfferScreen = (): React.ReactElement => {
 
   const offerDetails = currentOfferDetails;
 
-  const nearbyOffers = useMemo(
-    () => offers.filter((o) => o.id !== id).slice(0, 3),
-    [offers, id],
-  );
+  const nearbyOffers = useMemo(() => {
+    if (!offerDetails) {
+      return [];
+    }
+
+    return offers
+      .filter(
+        (offer) =>
+          offer.id !== id &&
+          offer.city.name === offerDetails.city.name,
+      )
+      .slice(0, 3);
+  }, [offerDetails, offers, id]);
 
   const mapOffers: Offer[] = offerDetails
     ? [offerDetails, ...nearbyOffers]
     : [];
+
+  const handleActiveOfferChange = useCallback((currentOffer: Offer | null) => {
+    setActiveOffer(currentOffer ?? offerDetails);
+  }, [offerDetails]);
 
   if (!id) {
     return <NotFoundScreen />;
@@ -151,7 +172,7 @@ const OfferScreen = (): React.ReactElement => {
                 </div>
               </div>
               <section className="offer__reviews reviews">
-                <ReviewsList reviews={comments} />
+                <ReviewsList reviews={comments} reviewsCount={commentsCount} />
                 <ReviewForm offerId={id} />
               </section>
             </div>
@@ -173,8 +194,7 @@ const OfferScreen = (): React.ReactElement => {
               listClassName="near-places__list places__list"
               cardClassName="near-places__card place-card"
               imageWrapperClassName="near-places__image-wrapper place-card__image-wrapper"
-              onActiveOfferChange={(currentOffer) =>
-                setActiveOffer(currentOffer ?? offerDetails)}
+              onActiveOfferChange={handleActiveOfferChange}
             />
           </section>
         </div>

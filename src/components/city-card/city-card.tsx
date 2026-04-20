@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useCallback } from 'react';
 import {generatePath, Link} from 'react-router-dom';
 import {AppRoute} from '../../const.ts';
 import {OfferPreview} from '../../types/offer.ts';
@@ -24,12 +24,18 @@ const CityCard = ({
 }: CityCardProps): React.ReactElement => {
   const offerLink = generatePath(AppRoute.Offer, {id: offer.id});
   const ratingWidth = `${Math.round(offer.rating) * 20}%`;
+  const handleMouseEnter = useCallback(() => {
+    onActiveOfferChange?.(offer);
+  }, [offer, onActiveOfferChange]);
+  const handleMouseLeave = useCallback(() => {
+    onActiveOfferChange?.(null);
+  }, [onActiveOfferChange]);
 
   return (
     <article
       className={cardClassName}
-      onMouseEnter={() => onActiveOfferChange?.(offer)}
-      onMouseLeave={() => onActiveOfferChange?.(null)}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {offer.isPremium && (
         <div className="place-card__mark">
@@ -78,4 +84,6 @@ const CityCard = ({
   );
 };
 
-export default CityCard;
+const MemoizedCityCard = memo(CityCard);
+
+export default MemoizedCityCard;

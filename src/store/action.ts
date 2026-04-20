@@ -1,1 +1,1 @@
-export {changeCity, setOffers, setSortType} from './reducer.ts';
+export { changeCity, setOffers, setSortType } from './offers-slice.ts';
