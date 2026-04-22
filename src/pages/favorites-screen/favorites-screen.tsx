@@ -39,6 +39,55 @@ const FavoritesScreen = (): React.ReactElement => {
   }, [dispatch]);
 
   const isEmpty = favoritesCount === 0;
+  const hasCriticalError = Boolean(favoritesError) && isEmpty;
+  let content: React.ReactElement;
+
+  if (hasCriticalError) {
+    content = (
+      <section className="favorites favorites--empty">
+        <ErrorMessage message="Server is unavailable. Failed to load favorites." />
+      </section>
+    );
+  } else if (isEmpty) {
+    content = <FavoritesEmptyState />;
+  } else {
+    content = (
+      <section className="favorites">
+        {favoritesError && (
+          <ErrorMessage message="Server is unavailable. Failed to load favorites." />
+        )}
+        <h1 className="favorites__title">Saved listing</h1>
+        <ul className="favorites__list">
+          {Object.entries(favoriteOffersByCity).map(
+            ([city, cityOffers]) => (
+              <li className="favorites__locations-items" key={city}>
+                <div className="favorites__locations locations locations--current">
+                  <div className="locations__item">
+                    <Link
+                      className="locations__item-link"
+                      to={AppRoute.Main}
+                      onClick={() => handleCityClick(city)}
+                    >
+                      <span>{city}</span>
+                    </Link>
+                  </div>
+                </div>
+                <OffersList
+                  offers={cityOffers}
+                  listClassName="favorites__places"
+                  cardClassName="favorites__card place-card"
+                  imageWrapperClassName="favorites__image-wrapper place-card__image-wrapper"
+                  infoClassName="favorites__card-info place-card__info"
+                  imageWidth={150}
+                  imageHeight={110}
+                />
+              </li>
+            ),
+          )}
+        </ul>
+      </section>
+    );
+  }
 
   return (
     <div className={`page${isEmpty ? ' page--favorites-empty' : ''}`}>
@@ -50,44 +99,7 @@ const FavoritesScreen = (): React.ReactElement => {
         className={`page__main page__main--favorites${isEmpty ? ' page__main--favorites-empty' : ''}`}
       >
         <div className="page__favorites-container container">
-          {favoritesError && (
-            <ErrorMessage message="Server is unavailable. Failed to load favorites." />
-          )}
-          {isEmpty ? (
-            <FavoritesEmptyState />
-          ) : (
-            <section className="favorites">
-              <h1 className="favorites__title">Saved listing</h1>
-              <ul className="favorites__list">
-                {Object.entries(favoriteOffersByCity).map(
-                  ([city, cityOffers]) => (
-                    <li className="favorites__locations-items" key={city}>
-                      <div className="favorites__locations locations locations--current">
-                        <div className="locations__item">
-                          <Link
-                            className="locations__item-link"
-                            to={AppRoute.Main}
-                            onClick={() => handleCityClick(city)}
-                          >
-                            <span>{city}</span>
-                          </Link>
-                        </div>
-                      </div>
-                      <OffersList
-                        offers={cityOffers}
-                        listClassName="favorites__places"
-                        cardClassName="favorites__card place-card"
-                        imageWrapperClassName="favorites__image-wrapper place-card__image-wrapper"
-                        infoClassName="favorites__card-info place-card__info"
-                        imageWidth={150}
-                        imageHeight={110}
-                      />
-                    </li>
-                  ),
-                )}
-              </ul>
-            </section>
-          )}
+          {content}
         </div>
       </main>
       <Footer />
