@@ -43,14 +43,20 @@ const MainScreen = (): React.ReactElement => {
     dispatch(fetchOffers());
   }, [dispatch]);
 
-  const handleCityChange = useCallback((newCity: City) => {
-    setActiveOffer(null);
-    dispatch(changeCity(newCity));
-  }, [dispatch]);
+  const handleCityChange = useCallback(
+    (newCity: City) => {
+      setActiveOffer(null);
+      dispatch(changeCity(newCity));
+    },
+    [dispatch],
+  );
 
-  const handleSortChange = useCallback((newSortType: SortType) => {
-    dispatch(setSortType(newSortType));
-  }, [dispatch]);
+  const handleSortChange = useCallback(
+    (newSortType: SortType) => {
+      dispatch(setSortType(newSortType));
+    },
+    [dispatch],
+  );
 
   const handleActiveOfferChange = useCallback((offer: OfferPreview | null) => {
     setActiveOffer(offer);
@@ -63,7 +69,7 @@ const MainScreen = (): React.ReactElement => {
   const isEmpty = currentCityOffers.length === 0;
 
   return (
-    <>
+    <div className="page page--gray page--main">
       <Header />
       <main
         className={`page__main page__main--index${isEmpty ? ' page__main--index-empty' : ''}`}
@@ -115,7 +121,7 @@ const MainScreen = (): React.ReactElement => {
         </div>
       </main>
       <Footer />
-    </>
+    </div>
   );
 };
 
