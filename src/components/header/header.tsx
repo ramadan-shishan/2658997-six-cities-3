@@ -23,9 +23,6 @@ const Header = (): React.ReactElement => {
     }
   }, [dispatch, isAuth]);
 
-  const isLoginPage = location.pathname === String(AppRoute.Login);
-  const showNav = !isLoginPage;
-
   return (
     <header className="header">
       <div className="container">
@@ -44,49 +41,48 @@ const Header = (): React.ReactElement => {
               />
             </Link>
           </div>
-          {showNav && (
-            <nav className="header__nav">
-              <ul className="header__nav-list">
-                {isAuth ? (
-                  <>
-                    <li className="header__nav-item user">
-                      <Link
-                        className="header__nav-link header__nav-link--profile"
-                        to={AppRoute.Favorites}
-                      >
-                        <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                        <span className="header__user-name user__name">
-                          {email}
-                        </span>
-                        <span className="header__favorite-count">
-                          {favoritesCount}
-                        </span>
-                      </Link>
-                    </li>
-                    <li className="header__nav-item">
-                      <Link
-                        className="header__nav-link"
-                        to={AppRoute.Main}
-                        onClick={handleLogout}
-                      >
-                        <span className="header__signout">Sign out</span>
-                      </Link>
-                    </li>
-                  </>
-                ) : (
+          <nav className="header__nav">
+            <ul className="header__nav-list">
+              {isAuth ? (
+                <>
                   <li className="header__nav-item user">
                     <Link
                       className="header__nav-link header__nav-link--profile"
-                      to={AppRoute.Login}
+                      to={AppRoute.Favorites}
                     >
                       <div className="header__avatar-wrapper user__avatar-wrapper"></div>
-                      <span className="header__login">Sign in</span>
+                      <span className="header__user-name user__name">
+                        {email}
+                      </span>
+                      <span className="header__favorite-count">
+                        {favoritesCount}
+                      </span>
                     </Link>
                   </li>
-                )}
-              </ul>
-            </nav>
-          )}
+                  <li className="header__nav-item">
+                    <Link
+                      className="header__nav-link"
+                      to={AppRoute.Main}
+                      onClick={handleLogout}
+                    >
+                      <span className="header__signout">Sign out</span>
+                    </Link>
+                  </li>
+                </>
+              ) : (
+                <li className="header__nav-item user">
+                  <Link
+                    className="header__nav-link header__nav-link--profile"
+                    to={AppRoute.Login}
+                    aria-current={location.pathname === String(AppRoute.Login) ? 'page' : undefined}
+                  >
+                    <div className="header__avatar-wrapper user__avatar-wrapper"></div>
+                    <span className="header__login">Sign in</span>
+                  </Link>
+                </li>
+              )}
+            </ul>
+          </nav>
         </div>
       </div>
     </header>

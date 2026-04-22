@@ -85,7 +85,7 @@ export const toggleFavoriteStatus = createAsyncThunk<
   'favorites/toggleFavoriteStatus',
   async ({offerId, status}, {dispatch}) => {
     const response = await api.post<OfferDetails>(`${APIRoute.Favorites}/${offerId}/${status}`);
-    await dispatch(fetchFavorites()).unwrap();
+    await dispatch(fetchFavorites());
     return response.data;
   }
 );

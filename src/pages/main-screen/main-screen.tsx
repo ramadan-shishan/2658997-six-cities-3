@@ -70,6 +70,60 @@ const MainScreen = (): React.ReactElement => {
   }
 
   const isEmpty = currentCityOffers.length === 0;
+  const hasCriticalError = Boolean(offersError) && isEmpty;
+  let content: React.ReactElement;
+
+  if (hasCriticalError) {
+    content = (
+      <>
+        <section className="cities__no-places">
+          <div className="cities__status-wrapper tabs__content">
+            <ErrorMessage message="Server is unavailable. Failed to load offers." />
+          </div>
+        </section>
+        <div className="cities__right-section"></div>
+      </>
+    );
+  } else if (isEmpty) {
+    content = (
+      <>
+        <MainEmptyState city={city} />
+        <div className="cities__right-section"></div>
+      </>
+    );
+  } else {
+    content = (
+      <>
+        <section className="cities__places places">
+          {offersError && (
+            <ErrorMessage message="Server is unavailable. Failed to load offers." />
+          )}
+          <h2 className="visually-hidden">Places</h2>
+          <b className="places__found">
+            {currentCityOffers.length} places to stay in {city}
+          </b>
+          <SortingList
+            currentSort={sortType}
+            onSortChange={handleSortChange}
+          />
+          <OffersList
+            offers={sortedOffers}
+            listClassName="cities__places-list places__list tabs__content"
+            onActiveOfferChange={handleActiveOfferChange}
+          />
+        </section>
+        <div className="cities__right-section">
+          {currentCity && (
+            <Map
+              city={currentCity}
+              offers={currentCityOffers}
+              selectedOffer={activeOffer}
+            />
+          )}
+        </div>
+      </>
+    );
+  }
 
   return (
     <div className="page page--gray page--main">
@@ -87,40 +141,7 @@ const MainScreen = (): React.ReactElement => {
           <div
             className={`cities__places-container${isEmpty ? ' cities__places-container--empty' : ''} container`}
           >
-            {offersError && <ErrorMessage message="Server is unavailable. Failed to load offers." />}
-            {isEmpty ? (
-              <>
-                <MainEmptyState city={city} />
-                <div className="cities__right-section"></div>
-              </>
-            ) : (
-              <>
-                <section className="cities__places places">
-                  <h2 className="visually-hidden">Places</h2>
-                  <b className="places__found">
-                    {currentCityOffers.length} places to stay in {city}
-                  </b>
-                  <SortingList
-                    currentSort={sortType}
-                    onSortChange={handleSortChange}
-                  />
-                  <OffersList
-                    offers={sortedOffers}
-                    listClassName="cities__places-list places__list tabs__content"
-                    onActiveOfferChange={handleActiveOfferChange}
-                  />
-                </section>
-                <div className="cities__right-section">
-                  {currentCity && (
-                    <Map
-                      city={currentCity}
-                      offers={currentCityOffers}
-                      selectedOffer={activeOffer}
-                    />
-                  )}
-                </div>
-              </>
-            )}
+            {content}
           </div>
         </div>
       </main>
