@@ -12,6 +12,23 @@ import PrivateRoute from '../private-route/private-route.tsx';
 import type { AppDispatch } from '../../store/index.ts';
 import { checkAuth, fetchFavorites } from '../../store/api-actions.ts';
 
+export const AppRoutes = (): React.ReactElement => (
+  <Routes>
+    <Route path={AppRoute.Main} element={<MainScreen />} />
+    <Route path={AppRoute.Login} element={<LoginScreen />} />
+    <Route
+      path={AppRoute.Favorites}
+      element={
+        <PrivateRoute>
+          <FavoritesScreen />
+        </PrivateRoute>
+      }
+    />
+    <Route path={AppRoute.Offer} element={<OfferScreen />} />
+    <Route path="*" element={<NotFoundScreen />} />
+  </Routes>
+);
+
 const App = (): React.ReactElement => {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -27,20 +44,7 @@ const App = (): React.ReactElement => {
   return (
     <HelmetProvider>
       <BrowserRouter>
-        <Routes>
-          <Route path={AppRoute.Main} element={<MainScreen />} />
-          <Route path={AppRoute.Login} element={<LoginScreen />} />
-          <Route
-            path={AppRoute.Favorites}
-            element={
-              <PrivateRoute>
-                <FavoritesScreen />
-              </PrivateRoute>
-            }
-          />
-          <Route path={AppRoute.Offer} element={<OfferScreen />} />
-          <Route path="*" element={<NotFoundScreen />} />
-        </Routes>
+        <AppRoutes />
       </BrowserRouter>
     </HelmetProvider>
   );
