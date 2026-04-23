@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import Header from '../../components/header/header.tsx';
@@ -14,12 +14,15 @@ import type { City } from '../../store/offers-slice.ts';
 import {
   selectFavoritesCount,
   selectFavoritesError,
+  selectFavoritesLoading,
   selectGroupedFavorites,
 } from '../../store/selectors.ts';
 import FavoritesEmptyState from './components/favorites-empty-state.tsx';
+import Spinner from '../../components/spinner/spinner.tsx';
 
 const FavoritesScreen = (): React.ReactElement => {
   const dispatch = useDispatch<AppDispatch>();
+  const [hasLoadedFavorites, setHasLoadedFavorites] = useState(false);
   const favoriteOffersByCity = useSelector((state: RootState) =>
     selectGroupedFavorites(state),
   );
@@ -29,9 +32,23 @@ const FavoritesScreen = (): React.ReactElement => {
   const favoritesError = useSelector((state: RootState) =>
     selectFavoritesError(state),
   );
+  const favoritesLoading = useSelector((state: RootState) =>
+    selectFavoritesLoading(state),
+  );
 
   useEffect(() => {
-    dispatch(fetchFavorites());
+    let isActive = true;
+
+    setHasLoadedFavorites(false);
+    dispatch(fetchFavorites()).finally(() => {
+      if (isActive) {
+        setHasLoadedFavorites(true);
+      }
+    });
+
+    return () => {
+      isActive = false;
+    };
   }, [dispatch]);
 
   const handleCityClick = useCallback((city: City) => {
@@ -39,10 +56,13 @@ const FavoritesScreen = (): React.ReactElement => {
   }, [dispatch]);
 
   const isEmpty = favoritesCount === 0;
+  const isLoading = favoritesLoading || !hasLoadedFavorites;
   const hasCriticalError = Boolean(favoritesError) && isEmpty;
   let content: React.ReactElement;
 
-  if (hasCriticalError) {
+  if (isLoading) {
+    content = <Spinner />;
+  } else if (hasCriticalError) {
     content = (
       <section className="favorites favorites--empty">
         <ErrorMessage message="Server is unavailable. Failed to load favorites." />

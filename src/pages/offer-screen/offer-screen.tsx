@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { Navigate, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Helmet } from 'react-helmet-async';
+import { AppRoute } from '../../const.ts';
 import type { RootState, AppDispatch } from '../../store/index.ts';
 import {
   fetchNearbyOffers,
@@ -9,7 +10,6 @@ import {
   fetchComments,
 } from '../../store/api-actions.ts';
 import Header from '../../components/header/header.tsx';
-import NotFoundScreen from '../not-found-screen/not-found-screen.tsx';
 import OffersList from '../../components/offers-list/offers-list.tsx';
 import FavoriteButton from '../../components/favorite-button/favorite-button.tsx';
 import ReviewForm from '../../components/review-form/review-form.tsx';
@@ -70,11 +70,11 @@ const OfferScreen = (): React.ReactElement => {
   const mapOffers = offerDetails ? [offerDetails, ...nearbyOffers] : [];
 
   if (!id) {
-    return <NotFoundScreen />;
+    return <Navigate to={AppRoute.NotFound} replace />;
   }
 
   if (currentOfferDetailsErrorStatus === 404) {
-    return <NotFoundScreen />;
+    return <Navigate to={AppRoute.NotFound} replace />;
   }
 
   if (currentOfferDetailsLoading || (!offerDetails && currentOfferDetailsErrorStatus === null)) {

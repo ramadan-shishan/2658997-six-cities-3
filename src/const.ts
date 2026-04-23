@@ -17,6 +17,7 @@ enum AppRoute {
   Login = '/login',
   Favorites = '/favorites',
   Offer = '/offer/:id',
+  NotFound = '/404',
 }
 
 export { CITIES, AppRoute, AuthorizationStatus };

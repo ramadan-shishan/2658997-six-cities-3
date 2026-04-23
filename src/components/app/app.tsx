@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import { AppRoute } from '../../const.ts';
-import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import MainScreen from '../../pages/main-screen/main-screen.tsx';
 import FavoritesScreen from '../../pages/favorites-screen/favorites-screen.tsx';
@@ -25,7 +25,8 @@ export const AppRoutes = (): React.ReactElement => (
       }
     />
     <Route path={AppRoute.Offer} element={<OfferScreen />} />
-    <Route path="*" element={<NotFoundScreen />} />
+    <Route path={AppRoute.NotFound} element={<NotFoundScreen />} />
+    <Route path="*" element={<Navigate to={AppRoute.NotFound} replace />} />
   </Routes>
 );
 
