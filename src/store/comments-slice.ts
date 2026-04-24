@@ -35,6 +35,10 @@ const commentsSlice = createSlice({
       .addCase(addComment.pending, (state) => {
         state.error = null;
       })
+      .addCase(addComment.fulfilled, (state, action) => {
+        state.error = null;
+        state.comments = [action.payload, ...state.comments];
+      })
       .addCase(addComment.rejected, (state) => {
         state.error = 'Failed to post comment';
       });

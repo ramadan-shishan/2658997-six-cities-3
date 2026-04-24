@@ -8,6 +8,13 @@ import ErrorMessage from '../error-message/error-message.tsx';
 
 const MIN_REVIEW_LENGTH = 50;
 const MAX_REVIEW_LENGTH = 300;
+const RATING_TITLES: Record<number, string> = {
+  5: 'perfect',
+  4: 'good',
+  3: 'not bad',
+  2: 'badly',
+  1: 'terribly',
+};
 
 type ReviewFormProps = {
   offerId: string;
@@ -102,7 +109,7 @@ const ReviewForm = ({ offerId }: ReviewFormProps): React.ReactElement => {
             <label
               htmlFor={`${value}-stars`}
               className="reviews__rating-label form__rating-label"
-              title={String(value)}
+              title={RATING_TITLES[value]}
             >
               <svg className="form__star-image" width="37" height="33">
                 <use xlinkHref="#icon-star"></use>
@@ -119,7 +126,6 @@ const ReviewForm = ({ offerId }: ReviewFormProps): React.ReactElement => {
         value={review}
         onChange={handleReviewChange}
         disabled={isSubmitting}
-        maxLength={MAX_REVIEW_LENGTH}
       />
       <div className="reviews__button-wrapper">
         <p className="reviews__help">

@@ -46,6 +46,10 @@ const MainScreen = (): React.ReactElement => {
     dispatch(fetchOffers());
   }, [dispatch]);
 
+  useEffect(() => {
+    setActiveOffer(null);
+  }, [city, currentCityOffers]);
+
   const handleCityChange = useCallback(
     (newCity: City) => {
       setActiveOffer(null);
@@ -69,6 +73,7 @@ const MainScreen = (): React.ReactElement => {
     return <Spinner />;
   }
 
+  const offersCount = currentCityOffers.length;
   const isEmpty = currentCityOffers.length === 0;
   const hasCriticalError = Boolean(offersError) && isEmpty;
   let content: React.ReactElement;
@@ -100,7 +105,7 @@ const MainScreen = (): React.ReactElement => {
           )}
           <h2 className="visually-hidden">Places</h2>
           <b className="places__found">
-            {currentCityOffers.length} places to stay in {city}
+            {offersCount} {offersCount === 1 ? 'place' : 'places'} to stay in {city}
           </b>
           <SortingList
             currentSort={sortType}
@@ -117,7 +122,7 @@ const MainScreen = (): React.ReactElement => {
             <Map
               city={currentCity}
               offers={currentCityOffers}
-              selectedOffer={activeOffer}
+              selectedOffer={activeOffer?.city.name === city ? activeOffer : null}
             />
           )}
         </div>

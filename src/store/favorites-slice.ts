@@ -47,6 +47,12 @@ const favoritesSlice = createSlice({
         state.updatingOfferIds = state.updatingOfferIds.filter(
           (offerId) => offerId !== action.meta.arg.offerId,
         );
+
+        if (!action.payload.isFavorite) {
+          state.favorites = state.favorites.filter(
+            (offer) => offer.id !== action.payload.id,
+          );
+        }
       })
       .addCase(toggleFavoriteStatus.rejected, (state, action) => {
         state.updatingOfferIds = state.updatingOfferIds.filter(

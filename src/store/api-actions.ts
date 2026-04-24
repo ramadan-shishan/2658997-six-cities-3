@@ -85,7 +85,11 @@ export const toggleFavoriteStatus = createAsyncThunk<
   'favorites/toggleFavoriteStatus',
   async ({offerId, status}, {dispatch}) => {
     const response = await api.post<OfferDetails>(`${APIRoute.Favorites}/${offerId}/${status}`);
-    await dispatch(fetchFavorites());
+
+    if (status === 1) {
+      await dispatch(fetchFavorites());
+    }
+
     return response.data;
   }
 );
@@ -98,10 +102,10 @@ export const fetchComments = createAsyncThunk<Review[], string>(
   }
 );
 
-export const addComment = createAsyncThunk<void, {offerId: string; comment: string; rating: number}>(
+export const addComment = createAsyncThunk<Review, {offerId: string; comment: string; rating: number}>(
   'comments/addComment',
-  async ({offerId, comment, rating}, { dispatch }) => {
-    await api.post<Review>(`${APIRoute.Comments}/${offerId}`, {comment, rating});
-    await dispatch(fetchComments(offerId)).unwrap();
+  async ({offerId, comment, rating}) => {
+    const response = await api.post<Review>(`${APIRoute.Comments}/${offerId}`, {comment, rating});
+    return response.data;
   }
 );
